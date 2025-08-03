@@ -10,6 +10,7 @@ export const getTasks = async (req, res) => {
     }
 };
 
+// Create a new task
 export const createTask = async (req, res) => {
     try {
         const { title } = req.body;
@@ -21,6 +22,7 @@ export const createTask = async (req, res) => {
     }
 };
 
+// Delete a task
 export const deleteTask = async (req, res) => {
     try {
         const { id } = req.params;
