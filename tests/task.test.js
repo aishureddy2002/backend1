@@ -1,40 +1,29 @@
-import request from "supertest";
-import app from "../server.js";
-import mongoose from "mongoose";
-import Task from "../models/Task.js";
+const request = require("supertest");
+const express = require("express");
+const mongoose = require("mongoose");
+const app = require("../server"); // or wherever your Express app is
 
-// Connect to MongoDB before all tests
-beforeAll(async () => {
-  await mongoose.connect(process.env.MONGO_URI);
-});
-
-// Clean DB after each test
-afterEach(async () => {
-  await Task.deleteMany();
-});
-
-// Disconnect DB after all tests
-afterAll(async () => {
-  await mongoose.disconnect();
-});
-
-describe("POST /tasks", () => {
-  it("should create a task", async () => {
-    const res = await request(app)
-      .post("/tasks")
-      .send({ title: "Test Task" });
-
-    expect(res.statusCode).toEqual(201);
-    expect(res.body).toHaveProperty("title", "Test Task");
+describe("Task API", () => {
+  beforeAll(async () => {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
   });
-});
 
-describe("DELETE /tasks/:id", () => {
-  it("should delete a task", async () => {
-    const task = new Task({ title: "Delete Me" });
-    await task.save();
+  afterAll(async () => {
+    await mongoose.connection.close();
+  });
 
-    const res = await request(app).delete(`/tasks/${task._id}`);
-    expect(res.statusCode).toEqual(204);
+  test("should create a task", async () => {
+    const res = await request(app).post("/tasks").send({ title: "Test task" });
+    expect(res.statusCode).toBe(201);
+    expect(res.body.title).toBe("Test task");
+  });
+
+  test("should get all tasks", async () => {
+    const res = await request(app).get("/tasks");
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 });
