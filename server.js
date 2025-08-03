@@ -1,24 +1,33 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-require('dotenv').config();
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import taskRoutes from "./routes/taskRoutes.js";
 
-const taskRoutes = require('./routes/tasks');
- // ✅ CommonJS require
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/tasks', taskRoutes); // ✅ no need for default
+// ✅ Add this route BEFORE your API routes
+app.get("/", (req, res) => {
+  res.send("🚀 To-Do App Backend is Live!");
+});
 
-mongoose.connect(process.env.MONGO_URI)
+// API Routes
+app.use("/tasks", taskRoutes);
+
+// MongoDB Connection
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
+    console.log("Connected to MongoDB");
+    app.listen(PORT, () =>
+      console.log(`Server is running on port ${PORT}`)
+    );
   })
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .catch((err) => console.error("MongoDB connection error:", err));
