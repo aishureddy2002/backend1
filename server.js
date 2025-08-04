@@ -1,34 +1,40 @@
+// server.js (ES Module version)
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
-import taskRoutes from './taskRoutes.js';
+import taskRoutes from "./taskRoutes.js"; // ✅ Update if path differs
 
-
-dotenv.config();
+dotenv.config(); // Load .env variables
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors()); // Allow cross-origin frontend
+app.use(express.json()); // Parse incoming JSON
 
-// ✅ Add this route BEFORE your API routes
+// Health Check Route
 app.get("/", (req, res) => {
   res.send("🚀 To-Do App Backend is Live!");
 });
 
-// API Routes
+// Routes for task operations
 app.use("/tasks", taskRoutes);
 
-// MongoDB Connection
+// MongoDB connection and server start
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
   .then(() => {
-    console.log("Connected to MongoDB");
+    console.log("✅ Connected to MongoDB Atlas");
     app.listen(PORT, () =>
-      console.log(`Server is running on port ${PORT}`)
+      console.log(`✅ Server is running on port ${PORT}`)
     );
   })
-  .catch((err) => console.error("MongoDB connection error:", err));
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err.message);
+    process.exit(1); // Stop the server if DB fails
+  });
