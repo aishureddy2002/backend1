@@ -1,3 +1,4 @@
+// backend/controllers/taskController.js
 import Task from "../models/Task.js";
 
 // ✅ GET all tasks
@@ -11,19 +12,19 @@ export const getTasks = async (req, res) => {
   }
 };
 
-// ✅ CREATE a new task
+// ✅ POST /tasks → Create a new task
 export const createTask = async (req, res) => {
   try {
-    const { text } = req.body;
+    const { text } = req.body; // ✅ Mongoose expects "text", not "title"
 
     if (!text || text.trim() === "") {
       return res.status(400).json({ error: "Task text is required" });
     }
 
-    const task = new Task({ text });
+    const task = new Task({ text }); // ✅ Matches schema field
     const savedTask = await task.save();
 
-    console.log("✅ Task saved:", savedTask);
+    console.log("✅ Task saved to MongoDB:", savedTask);
     res.status(201).json(savedTask);
   } catch (err) {
     console.error("❌ Failed to create task:", err.message);
@@ -31,12 +32,12 @@ export const createTask = async (req, res) => {
   }
 };
 
-// ✅ DELETE a task by ID
+// ✅ DELETE /tasks/:id → Delete task by ID
 export const deleteTask = async (req, res) => {
   try {
     const { id } = req.params;
     await Task.findByIdAndDelete(id);
-    res.status(204).send();
+    res.status(204).send(); // No content
   } catch (err) {
     console.error("❌ Failed to delete task:", err.message);
     res.status(500).json({ error: "Failed to delete task" });
