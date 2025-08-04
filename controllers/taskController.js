@@ -24,7 +24,7 @@ export const createTask = async (req, res) => {
     const task = new Task({ text }); // ✅ Matches schema field
     const savedTask = await task.save();
 
-    console.log("✅ Task saved to MongoDB:", savedTask);
+    console.log("✅ Task saved:", savedTask);
     res.status(201).json(savedTask);
   } catch (err) {
     console.error("❌ Failed to create task:", err.message);
